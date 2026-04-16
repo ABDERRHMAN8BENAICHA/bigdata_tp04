@@ -1,12 +1,41 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  mqtt:
-    image: eclipse-mosquitto
-    ports:
-      - "1883:1883"
 
+  # ── الـ Broker (الوسيط) ──────────────────────
+  broker:
+    image: eclipse-mosquitto:latest
+    container_name: mqtt-broker
+    ports:
+      - "1883:1883"    # MQTT
+      - "9001:9001"    # WebSocket
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - iot-network
+
+  # ── الـ Server ────────────────────────────────
   server:
     build: ./server
+    container_name: iot-server
     depends_on:
-      - mqtt
+      - broker        # ينتظر الـ broker يشتغل أولاً
+    networks:
+      - iot-network
+    restart: on-failure
+
+  # ── الـ Sensor ────────────────────────────────
+  sensor:
+    build: ./sensor
+    container_name: iot-sensor
+    depends_on:
+      - broker        # ينتظر الـ broker يشتغل أولاً
+      - server        # ينتظر الـ server يشتغل أولاً
+    networks:
+      - iot-network
+    restart: on-failure
+
+# ── الشبكة المشتركة ───────────────────────────
+networks:
+  iot-network:
+    driver: bridge

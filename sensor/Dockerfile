@@ -3,7 +3,7 @@ FROM python:3.11-slim
 
 # معلومات
 LABEL author="IoT Student"
-LABEL description="Serveur IoT MQTT"
+LABEL description="Capteur IoT MQTT"
 
 # مجلد العمل داخل الـ container
 WORKDIR /app
@@ -14,8 +14,8 @@ COPY requirements.txt .
 # تثبيت المكتبات
 RUN pip install --no-cache-dir -r requirements.txt
 
-# نسخ كود الـ server
-COPY server.py .
+# نسخ كود الـ sensor
+COPY sensor.py .
 
 # الأمر الذي يشتغل عند تشغيل الـ container
-CMD ["python", "server.py"]
+CMD ["python", "sensor.py"]
